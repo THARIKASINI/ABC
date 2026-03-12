@@ -1,365 +1,229 @@
-# AcademicIntel AI -- System Architecture & Flow
+# AcademicIntel AI -- Full System Flow & Architecture
 
-## Overview
-
-AcademicIntel AI is a modern AI-powered academic intelligence platform
-designed for universities to analyze classroom engagement, student
-stress, assignment workloads, and academic performance.
-
-Built with: - Next.js 14 (App Router) - TailwindCSS - Glassmorphism UI -
-Lucide Icons - Recharts / Chart.js - Ollama (Local AI Models)
+This document describes the **complete functional flow** of the
+AcademicIntel AI platform.
 
 ------------------------------------------------------------------------
 
-# High Level Architecture
+# High-Level Platform Flow
 
-User (Student / Teacher) \| v Next.js Frontend (App Router) \| v API
-Layer (Next.js Server Actions / API Routes) \| v Database Layer
-(PostgreSQL / MySQL / Prisma) \| v AI Engine (Local Ollama Model --
-Mistral) \| v Analytics Engine \| v Dashboards & Graph Visualizations
+``` mermaid
+flowchart TD
+
+A[User Opens Platform] --> B[Landing Page]
+
+B --> C{User Chooses Login}
+C -->|Student| D[Student Login]
+C -->|Teacher| E[Teacher Login]
+
+D --> F[Authentication System]
+E --> F
+
+F --> G{Role Verification}
+
+G -->|Student| H[Student Dashboard]
+G -->|Teacher| I[Teacher Dashboard]
+
+%% STUDENT SIDE
+
+subgraph Student_System
+
+H --> S1[Mood Feedback System]
+H --> S2[Assignment Portal]
+H --> S3[Workload Analyzer]
+H --> S4[Stress Analysis Engine]
+H --> S5[Anonymous Doubt Exchange]
+H --> S6[Smart Attendance]
+
+%% Mood System
+S1 --> S1A[Student Selects Mood]
+S1A --> S1B[Check IP Address]
+S1B --> S1C{Already Submitted?}
+S1C -->|No| S1D[Store Mood in Database]
+S1C -->|Yes| S1E[Reject Submission]
+
+S1D --> S1F[Update Mood Graph]
+S1F --> S1G[Send Data to Teacher Dashboard]
+
+%% Assignment Portal
+S2 --> S2A[Upload Assignment]
+S2A --> S2B[Deadline Check]
+S2B --> S2C{Late Submission?}
+S2C -->|Yes| S2D[Calculate Delay Time]
+S2C -->|No| S2E[Normal Submission]
+
+S2D --> S2F[Store Submission Data]
+S2E --> S2F
+
+S2F --> S2G[Update Submission History]
+S2G --> S2H[Update Assignment Analytics]
+
+%% Workload Analyzer
+S3 --> S3A[Fetch Assignment Data]
+S3A --> S3B[Count Assignments Per Week]
+S3A --> S3C[Count Late Submissions]
+S3A --> S3D[Count Missed Assignments]
+
+S3B --> S3E[Workload Formula Engine]
+S3C --> S3E
+S3D --> S3E
+
+S3E --> S3F[Generate Workload Score]
+S3F --> S3G[Display Progress Meter]
+
+%% Stress Analysis
+S4 --> S4A[Collect Mood History]
+S4 --> S4B[Collect Assignment Delays]
+S4 --> S4C[Collect Workload Score]
+S4 --> S4D[Collect Academic Trend]
+
+S4A --> S4E[Stress Calculation Engine]
+S4B --> S4E
+S4C --> S4E
+S4D --> S4E
+
+S4E --> S4F{Stress Level}
+
+S4F -->|Low| S4G[Low Stress]
+S4F -->|Moderate| S4H[Moderate Stress]
+S4F -->|High| S4I[High Stress]
+S4F -->|Critical| S4J[Burnout Risk]
+
+%% Doubt Exchange
+S5 --> S5A[Student Posts Doubt]
+S5A --> S5B[Abusive Language Filter]
+
+S5B -->|Clean| S5C[Post Anonymously]
+S5B -->|Abusive| S5D[Reveal Identity]
+
+S5D --> S5E[Send Report to Teacher]
+
+S5C --> S5F[Students Answer]
+S5F --> S5G[Upvote System]
+
+S5G --> S5H{Upvotes Threshold}
+
+S5H -->|Reached| S5I[Mark Doubt Solved]
+
+%% Smart Attendance
+S6 --> S6A[Open Camera]
+S6A --> S6B[Capture Face]
+S6B --> S6C[Face Recognition]
+S6C --> S6D{Face Match}
+
+S6D -->|Yes| S6E[Verify IP Address]
+S6D -->|No| S6F[Reject Attendance]
+
+S6E --> S6G{College WiFi?}
+
+S6G -->|Yes| S6H[Mark Attendance]
+S6G -->|No| S6I[Reject]
+
+end
+
+%% TEACHER SIDE
+
+subgraph Teacher_System
+
+I --> T1[Classroom Mood Dashboard]
+I --> T2[Student Stress Monitor]
+I --> T3[Assignment Analytics]
+I --> T4[Doubt Monitoring]
+I --> T5[AI Teaching Suggestions]
+
+%% Mood Dashboard
+T1 --> T1A[Collect Student Mood Data]
+T1A --> T1B[Generate Pie Chart]
+T1A --> T1C[Generate Timeline Graph]
+
+%% Stress Alerts
+T2 --> T2A[Fetch Stress Scores]
+T2A --> T2B{Stress Threshold}
+
+T2B -->|High| T2C[Generate Alert]
+T2C --> T2D[Notify Teacher]
+
+%% Assignment Analytics
+T3 --> T3A[Fetch Submission Data]
+T3A --> T3B[Completion Rate Graph]
+T3A --> T3C[Late Submission Graph]
+T3A --> T3D[Workload Distribution]
+
+%% Doubt Monitoring
+T4 --> T4A[Monitor Doubt Activity]
+T4A --> T4B[Detect Abusive Posts]
+T4B --> T4C[Reveal Student Identity]
+
+%% AI Suggestions
+T5 --> T5A[Analyze Mood Data]
+T5A --> T5B{Confusion > 40%}
+T5B -->|Yes| T5C[Suggest Review Concept]
+
+T5A --> T5D{Boredom > 50%}
+T5D -->|Yes| T5E[Suggest Increase Pace]
+
+T5A --> T5F{Too Fast Feedback}
+T5F -->|Yes| T5G[Suggest Slow Down]
+
+end
+
+%% AI SYSTEM
+
+subgraph AI_System
+
+AI1[User Query]
+AI1 --> AI2[Send to Ollama]
+AI2 --> AI3[Local Model - Mistral]
+AI3 --> AI4[Generate AI Insight]
+AI4 --> AI5[Return Suggestion]
+
+end
+
+%% DATA LAYER
+
+subgraph Database
+
+DB1[(Users)]
+DB2[(Mood Logs)]
+DB3[(Assignments)]
+DB4[(Stress Scores)]
+DB5[(Attendance)]
+DB6[(Doubts)]
+DB7[(Security Logs)]
+
+end
+
+S1D --> DB2
+S2F --> DB3
+S4E --> DB4
+S6H --> DB5
+S5A --> DB6
+S1B --> DB7
+```
 
 ------------------------------------------------------------------------
 
-# Application Page Flow
+# Technology Stack
 
-## 1. Landing Page
+Frontend - Next.js 14 (App Router) - TailwindCSS - Lucide Icons -
+Recharts / Chart.js
 
-Purpose: Introduce the AcademicIntel AI platform.
+Backend - Next.js API Routes
 
-Sections: - Hero Section - Feature Cards - Platform Overview - Dashboard
-Preview - Call To Action
+AI Layer - Ollama - Mistral Model
 
-User Actions: - Explore platform - Navigate to login
-
-Navigation:
-
-Landing Page \| v Login Page
+Database - PostgreSQL / MySQL - Prisma ORM
 
 ------------------------------------------------------------------------
 
-# 2. Authentication Flow
+# Security Rules
 
-User selects role:
-
-Student Teacher
-
-Login Fields: - Student ID / Email - Password - Role Selection
-
-Flow:
-
-User Login \| v Role Verification \| \|---- Student → Student Dashboard
-\| \|---- Teacher → Teacher Dashboard
+• One mood submission per IP per lecture\
+• One attendance per IP per class\
+• Doubt spam prevention\
+• Abusive language detection\
+• Teacher review logs
 
 ------------------------------------------------------------------------
 
-# 3. Student Dashboard Flow
-
-Main Modules:
-
-1.  Mood Feedback System
-2.  Assignment Submission Portal
-3.  Workload Analyzer
-4.  Personal Stress Analysis
-5.  Anonymous Doubt Exchange
-6.  Smart Attendance System
-
-------------------------------------------------------------------------
-
-# Mood Feedback System Flow
-
-Student selects mood:
-
-Confused Bored Interested Too Fast Too Slow
-
-Flow:
-
-Student → Select Mood \| v IP Address Validation \| v Check Lecture
-Session \| v Allow One Submission \| v Store Data in Database \| v
-Update Mood Graph
-
-Stored Fields:
-
--   student_id
--   ip_address
--   lecture_id
--   mood_type
--   timestamp
-
-------------------------------------------------------------------------
-
-# Assignment Submission Flow
-
-Student uploads assignment file.
-
-Flow:
-
-Student Upload \| v Deadline Validation \| v File Storage \| v
-Submission Logging
-
-Stored Fields:
-
--   student_id
--   ip_address
--   timestamp
--   deadline
--   delay_time
--   submission_status
-
-System Features:
-
-Deadline Detector If deadline \< 24 hours → Warning Notification
-
-------------------------------------------------------------------------
-
-# Workload Analyzer Flow
-
-Input Data:
-
--   assignments_per_week
--   late_submissions
--   missed_assignments
-
-Workload Score Formula:
-
-workload_score = (assignments_per_week \* 2) + (late_submissions \* 3) +
-(missed_assignments \* 5)
-
-Flow:
-
-Assignment Data \| v Workload Calculator \| v Score Generation \| v
-Progress Meter Visualization
-
-------------------------------------------------------------------------
-
-# Personal Stress Analysis Flow
-
-Stress Score Factors:
-
--   Mood Feedback History
--   Assignment Delays
--   Workload Score
--   Academic Decline
-
-Flow:
-
-Student Data \| v Stress Evaluation Engine \| v Stress Level
-Classification
-
-Levels:
-
-Low Stress Moderate Stress High Stress Burnout Risk
-
-Charts:
-
--   Stress Timeline
--   Trend Analysis
-
-------------------------------------------------------------------------
-
-# Anonymous Doubt Exchange Flow
-
-Student posts doubt anonymously.
-
-Flow:
-
-Post Question \| v Abusive Language Filter \| \|---- Clean Message →
-Post Anonymously \| \|---- Abusive Message → Reveal Student Identity
-Send to Teacher
-
-Students can:
-
--   Answer questions
--   Upvote answers
--   Tag subjects
-
-When upvotes reach threshold:
-
-Question → Marked as Solved
-
-------------------------------------------------------------------------
-
-# Smart Attendance System Flow
-
-Attendance Process:
-
-Student opens camera page.
-
-Flow:
-
-Camera Capture \| v Face Recognition Engine \| v Match with Student
-Dataset \| v IP Verification (College WiFi) \| v Attendance Marked
-
-Restrictions:
-
--   One attendance per IP
--   Must match registered face
--   Must be inside campus network
-
-------------------------------------------------------------------------
-
-# Teacher Dashboard Flow
-
-Teacher Dashboard Modules:
-
-1.  Classroom Mood Analytics
-2.  Student Stress Monitoring
-3.  Assignment Analytics
-4.  Doubt Monitoring
-5.  AI Teaching Suggestions
-
-------------------------------------------------------------------------
-
-# Classroom Mood Analytics Flow
-
-Data Source:
-
-Student mood submissions.
-
-Flow:
-
-Mood Data \| v Analytics Engine \| v Graph Visualization
-
-Charts:
-
--   Pie Chart (Mood Distribution)
--   Timeline Engagement Graph
-
-------------------------------------------------------------------------
-
-# AI Teaching Suggestion System
-
-Rule Based Logic:
-
-If confusion \> 40%
-
-Suggestion: Review previous concept
-
-If boredom \> 50%
-
-Suggestion: Increase lecture pace
-
-If "Too Fast" responses increase
-
-Suggestion: Slow down explanation
-
-Flow:
-
-Mood Analytics \| v Suggestion Engine \| v Teacher Notification
-
-------------------------------------------------------------------------
-
-# Student Stress Alert System
-
-Flow:
-
-Student Analytics \| v Stress Threshold Detection \| v Teacher Alert
-
-Example Alert:
-
-Student ID: STU104 Stress Level: High
-
-Reasons:
-
--   Multiple late assignments
--   High confusion mood
--   Increasing workload score
-
-------------------------------------------------------------------------
-
-# Assignment Analytics Flow
-
-Teacher View:
-
-Assignment completion rates Late submissions Workload distribution
-
-Visualization:
-
-Bar Charts Pie Charts Trend Graphs
-
-------------------------------------------------------------------------
-
-# AI Architecture
-
-Local AI Model:
-
-Ollama
-
-Example Model:
-
-Mistral
-
-Processing Flow:
-
-User Query \| v Local Ollama Model \| v Generated Response \| v
-Displayed in Dashboard
-
-------------------------------------------------------------------------
-
-# Data Security System
-
-Security Controls:
-
--   One mood submission per IP per lecture
--   One attendance per IP per class
--   Doubt post spam detection
--   Abuse monitoring
--   Teacher log review
-
-Logs Stored:
-
--   IP address
--   student_id
--   action_type
--   timestamp
-
-------------------------------------------------------------------------
-
-# Graph System
-
-Graphs used across platform:
-
--   Mood Distribution
--   Stress Trends
--   Assignment Workload
--   Submission Rate
--   Class Engagement Timeline
-
-Visualization Libraries:
-
--   Recharts
--   Chart.js
-
-------------------------------------------------------------------------
-
-# UI Design System
-
-Design Style:
-
-Glassmorphism
-
-Features:
-
--   Frosted glass cards
--   Soft purple gradients
--   Baby pink highlights
--   Blur backgrounds
--   Smooth hover animations
-
-Components:
-
-Navbar Floating Cards Analytics Panels Charts Interactive Buttons
-
-------------------------------------------------------------------------
-
-# Final Platform Flow
-
-Landing Page \| v Login Page \| v Role Authentication \| \|---- Student
-Dashboard \| \| \|-- Mood Feedback \| \|-- Assignment Portal \| \|--
-Workload Analyzer \| \|-- Stress Analysis \| \|-- Doubt Exchange \| \|--
-Smart Attendance \| \| \|---- Teacher Dashboard \| \|-- Classroom Mood
-Analytics \|-- Stress Alerts \|-- Assignment Analytics \|-- Doubt
-Monitoring \|-- AI Teaching Suggestions
-
-------------------------------------------------------------------------
-
-# End of Architecture Flow
+# End of System Flow
